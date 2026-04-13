@@ -57,12 +57,12 @@ Data must be stored as an `.npz` file with the following fields:
 
 | Field | Shape | Description |
 |---|---|---|
-| `hgp` | trials × time × channels | Log high-gamma power per time bin |
+| `spikes` | trials × time × channels | Log high-gamma power per time bin |
 | `externalinputs` | trials × time × input_dim | Stimulus or task inputs (float or int) |
 | `lengths` | trials | Trial duration in time bins |
 | `times` | trials | Trial onset timestamps |
 
-> **Note:** The `hgp` field replaces the `spikes` field used in the original FINDR. Values should be log-transformed power envelopes (e.g. log of the analytic amplitude in the 70–150 Hz band), z-scored or otherwise normalised across the session prior to input.
+> **Note:** The `spikes` field is not renamed from the original FINDR, but represents log high-gamma power in this instantiation. Values should be log-transformed power envelopes (e.g. log of the analytic amplitude in the 70–150 Hz band), z-scored or otherwise normalised across the session prior to input.
 
 ---
 

@@ -1,63 +1,109 @@
-<h1 align='center'>FINDR</h1>
-<h2 align='center'>Flow-field inference from neural data using deep recurrent networks</h2>
+# MR-FINDR — sEEG Edition
 
-Neurons work together in large groups to solve tasks — like deciding whether to buy a laptop or not based on online reviews. A central premise in neuroscience is that the brain's algorithm for doing such tasks can be succinctly represented as a differential equation describing how this group activity changes over time. 
+<h2 align='center'>Multi-Region Flow-field Inference from Neural Data using Deep Recurrent Networks</h2>
+<h3 align='center'>Extended for continuous stereo-EEG (sEEG) high-gamma power signals</h3>
 
-**FINDR** discovers what this differential equation is, using real brain activity data from animals doing specific tasks. The method does this in two main steps:
+---
 
-1) It separates the brain activity that is relevant to the task from activity that isn't.
+This repository contains a modified version of [FINDR](https://github.com/Brody-Lab/findr) adapted for **continuous sEEG recordings** rather than spike trains. The core architecture — separating task-relevant dynamics from noise and learning a governing differential equation — is preserved, but the observation model has been replaced to accommodate log high-gamma power envelopes extracted from broadband sEEG.
 
-2) It learns the most likely differential equation that is consistent with the task-relevant brain activity.
+## Key modifications
 
-# Installation
-Run the commands below to install FINDR:
+| Component | Original FINDR | This version |
+|---|---|---|
+| Input signal | Spike counts (integer) | Log high-gamma power (continuous, float) |
+| Observation model | Poisson likelihood | Gaussian likelihood |
+| Per-channel noise | — | Learned variance σ² per electrode |
+| Reconstruction loss | *x* log λ − λ | (*x* − μ)² / 2σ² + log σ |
 
-```
-$ git clone https://github.com/Brody-Lab/findr
-$ module load anaconda/2024.10
-$ conda create --name findr python=3.12
-$ conda activate findr
-$ cd findr
-$ pip install -e .
-```
+### Details
 
-# Data format
-The data needs to be stored as an `.npz` file that contains the following keyword arguments:
+**Gaussian observation model.** The Poisson model assumes non-negative integer observations with variance equal to the mean, which is inappropriate for log-transformed power signals. The replacement Gaussian likelihood treats each time-bin observation as a noisy readout of the latent state, with additive Gaussian noise of learned variance.
 
-`spikes`: contains a 3-d array (# of trials x maximum trial length x # of neurons) of spike counts for each time bin.
+**Per-channel variance (σ²).** Signal-to-noise ratio varies substantially across sEEG electrode sites due to differences in grey-matter proximity, recording depth, and local field geometry. A scalar σ² is learned independently for each channel during training, allowing the model to down-weight noisy electrodes without discarding them.
 
-`externalinputs`: contains a 3-d array (# of trials x maximum trial length x input stimulus dimension) where the input stimulus dimension can be an integer greater than or equal to 1. The stimulus values themselves can be floating point numbers or integers.
-
-`lengths`: contains a 1-d array (# of trials) of the length of each trial (in the unit of time bins).
-
-`times`: contains a 1-d array (# of trials) of the timestamp of onset of each trial.
-
-# Training FINDR
-
-Run the commands below to run FINDR:
+**Reconstruction loss.** The training objective replaces the Poisson log-likelihood with the Gaussian negative log-likelihood:
 
 ```
-$ module load anaconda/2024.10
-$ conda activate findr
-$ python main.py --datapath=$datafilepath --workdir=$analysispath
+L_recon = Σ_i [ (x_i − μ_i)² / (2σ_i²) + log σ_i ]
 ```
 
-Make sure that the `$datafilepath` correctly specifies the location of the data file to fit (in `.npz` format). The `$analysispath` is where the trained FINDR parameters are stored.
+where the sum is over channels *i*, *x_i* is the observed log high-gamma power, μ_i is the model's reconstructed output, and σ_i is the learned per-channel standard deviation.
 
-It should take a few hours on a single A100 GPU to finish training.
+---
 
-# Example analyses
-There are example Jupyter notebooks under the `notebooks` folder. The `plot_example_vector_fields.ipynb` notebook demonstrates how to plot flow fields (or the velocity vector fields) for an example dataset.
+## Background
 
-# Citation
+Neural populations coordinate across large groups to perform tasks. FINDR's central premise is that the brain's underlying algorithm can be expressed as a differential equation over population activity. The method:
+
+1. Separates task-relevant brain activity from task-irrelevant variability.
+2. Learns the most likely differential equation consistent with the task-relevant dynamics.
+
+This version extends that framework to the continuous-valued, multi-region sEEG signals commonly recorded during human intracranial studies.
+
+---
+
+## Installation
+
+```bash
+git clone <this-repo>
+module load anaconda/2024.10
+conda create --name findr python=3.12
+conda activate findr
+cd findr
+pip install -e .
+```
+
+---
+
+## Data format
+
+Data must be stored as an `.npz` file with the following fields:
+
+| Field | Shape | Description |
+|---|---|---|
+| `hgp` | trials × time × channels | Log high-gamma power per time bin |
+| `externalinputs` | trials × time × input_dim | Stimulus or task inputs (float or int) |
+| `lengths` | trials | Trial duration in time bins |
+| `times` | trials | Trial onset timestamps |
+
+> **Note:** The `hgp` field replaces the `spikes` field used in the original FINDR. Values should be log-transformed power envelopes (e.g. log of the analytic amplitude in the 70–150 Hz band), z-scored or otherwise normalised across the session prior to input.
+
+---
+
+## Training
+
+```bash
+module load anaconda/2024.10
+conda activate findr
+python main.py --datapath=$datafilepath --workdir=$analysispath
+```
+
+`$datafilepath` — path to the `.npz` data file  
+`$analysispath` — directory where trained model parameters are saved
+
+Training typically takes a few hours on a single A100 GPU.
+
+---
+
+## Example analyses
+
+Example Jupyter notebooks are provided in the `notebooks/` folder. The `plot_example_vector_fields.ipynb` notebook demonstrates how to visualise learned flow fields for an example dataset.
+
+---
+
+## Citation
+
+If you use this modified version, please also cite the original FINDR paper:
 
 Kim, T.D., Luo, T.Z., Can, T., Krishnamurthy, K., Pillow, J.W., Brody, C.D. (2025). Flow-field inference from neural data using deep recurrent networks. *Proceedings of the 42nd International Conference on Machine Learning (ICML)*.
 
 ```bibtex
 @article{kim2025findr,
-    author={Timothy Doyeon Kim and Thomas Zhihao Luo and Tankut Can and Kamesh Krishnamurthy and Jonathan W. Pillow and Carlos D. Brody},
-    title={Flow-field inference from neural data using deep recurrent networks},
-    year={2025},
-    journal={Proceedings of the 42nd International Conference on Machine Learning (ICML)}
+    author    = {Timothy Doyeon Kim and Thomas Zhihao Luo and Tankut Can and
+                 Kamesh Krishnamurthy and Jonathan W. Pillow and Carlos D. Brody},
+    title     = {Flow-field inference from neural data using deep recurrent networks},
+    year      = {2025},
+    journal   = {Proceedings of the 42nd International Conference on Machine Learning (ICML)}
 }
 ```

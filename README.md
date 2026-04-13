@@ -41,7 +41,7 @@ This version extends that framework to the continuous-valued, multi-region sEEG 
 ## Installation
 
 ```bash
-git clone <this-repo>
+git clone https://github.com/laurenostrowski/MR-FINDR.git
 module load anaconda/2024.10
 conda create --name findr python=3.12
 conda activate findr

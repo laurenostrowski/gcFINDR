@@ -1,6 +1,6 @@
 <h2 align='center'>Multi-Region Flow-field Inference from Neural Data using Deep Recurrent Networks</h2>
 Extended for continuous stereo-EEG (sEEG) high-gamma power signals  
----  
+
 This repository contains a modified version of [FINDR](https://github.com/Brody-Lab/findr) adapted for **continuous sEEG recordings** rather than spike trains. The core architecture — separating task-relevant dynamics from noise and learning a governing differential equation — is preserved, but the observation model has been replaced to accommodate log high-gamma power envelopes extracted from broadband sEEG.
 
 ## Key modifications

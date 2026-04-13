@@ -81,12 +81,6 @@ Training typically takes a few hours on a single A100 GPU.
 
 ---
 
-## Example analyses
-
-Example Jupyter notebooks are provided in the `notebooks/` folder. The `plot_example_vector_fields.ipynb` notebook demonstrates how to visualise learned flow fields for an example dataset.
-
----
-
 ## Citation
 
 If you use this modified version, please also cite the original FINDR paper:

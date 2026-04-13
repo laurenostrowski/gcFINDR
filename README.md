@@ -62,7 +62,7 @@ Data must be stored as an `.npz` file with the following fields:
 | `lengths` | trials | Trial duration in time bins |
 | `times` | trials | Trial onset timestamps |
 
-> **Note:** The `spikes` field is not renamed from the original FINDR, but represents log high-gamma power in this instantiation. Values should be log-transformed power envelopes (e.g. log of the analytic amplitude in the 70–150 Hz band), z-scored or otherwise normalised across the session prior to input.
+> **Note:** The `spikes` field is not renamed from the original FINDR, but represents log high-gamma power in this instantiation. Values should be log-transformed power envelopes (e.g. log of the analytic amplitude in the 70–150 Hz band) and z-scored (or otherwise normalized) across the session prior to input.
 
 ---
 

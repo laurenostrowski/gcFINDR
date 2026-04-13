@@ -1,5 +1,3 @@
-# MR-FINDR — sEEG Edition
-
 <h2 align='center'>Multi-Region Flow-field Inference from Neural Data using Deep Recurrent Networks</h2>
 <h3 align='center'>Extended for continuous stereo-EEG (sEEG) high-gamma power signals</h3>
 

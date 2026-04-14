@@ -15,7 +15,7 @@ This repository contains a modified version of [FINDR](https://github.com/Brody-
 
 **Gaussian observation model.** The Poisson model assumes non-negative integer observations with variance equal to the mean, which is inappropriate for log-transformed power signals. The replacement Gaussian likelihood treats each time-bin observation as a noisy readout of the latent state, with additive Gaussian noise of learned variance.
 
-**Per-channel variance (σ²).** Signal-to-noise ratio varies substantially across sEEG electrode sites due to differences in grey-matter proximity, recording depth, and local field geometry. A scalar σ² is learned independently for each channel during training, allowing the model to down-weight noisy electrodes without discarding them.
+**Per-channel variance (σ²).** Signal-to-noise ratio varies substantially across sEEG electrode sites. A scalar σ² is learned independently for each channel during training, allowing the model to down-weight noisy electrodes without discarding them.
 
 **Reconstruction loss.** The training objective replaces the Poisson log-likelihood with the Gaussian negative log-likelihood:
 
